@@ -1,5 +1,5 @@
 from django.contrib import admin
-from bitcoin_trade.trade_engine.models import UserProfile, Balance, Trade, CancelOrder, Ticker
+from trade_engine.models import UserProfile, Balance, Trade, CancelOrder, Ticker
 
 admin.site.register(UserProfile)
 admin.site.register(Balance)
