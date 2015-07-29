@@ -24,3 +24,16 @@ class Trade(models.Model):
 class CancelOrder(models.Model):
     user = models.ForeignKey(User)
     order_id = models.IntegerField()
+
+
+class Ticker(models.Model):
+    high = models.DecimalField(max_digits=6, decimal_places=2)
+    low = models.DecimalField(max_digits=6, decimal_places=2)
+    avg = models.DecimalField(max_digits=6, decimal_places=2)
+    vol = models.DecimalField(max_digits=20, decimal_places=2)
+    vol_cur = models.DecimalField(max_digits=9, decimal_places=2)
+    last = models.DecimalField(max_digits=6, decimal_places=2)
+    buy = models.DecimalField(max_digits=6, decimal_places=2)
+    sell = models.DecimalField(max_digits=6, decimal_places=2)
+    updated = models.IntegerField()
+
