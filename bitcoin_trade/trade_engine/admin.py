@@ -1,3 +1,8 @@
 from django.contrib import admin
+from bitcoin_trade.trade_engine.models import UserProfile, Balance, Trade, CancelOrder, Ticker
 
-# Register your models here.
+admin.site.register(UserProfile)
+admin.site.register(Balance)
+admin.site.register(Trade)
+admin.site.register(CancelOrder)
+admin.site.register(Ticker)
