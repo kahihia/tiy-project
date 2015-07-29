@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+{% block body %}
+{{ user.username }}
+<a href="/">home</a>
+{% if user.id %}
+    <a href="{% url 'logout' %}">logout</a>
+{% else %}
+    <a href="/registration/">register</a>
+    <a href="{% url 'login' %}">login</a>
+{% endif %}
+{% endblock %}
+
+</body>
+</html>
