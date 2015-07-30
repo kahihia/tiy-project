@@ -3,8 +3,8 @@ from django.db import models
 
 class UserAccount(models.Model):
     user = models.ForeignKey(User)
-    api_key = models.CharField(max_length=50)
-    secret = models.CharField(max_length=50)
+    api_key = models.CharField(max_length=100)
+    secret = models.CharField(max_length=100)
 
 
 class Balance(models.Model):
