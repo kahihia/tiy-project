@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form method="GET" action="{% url 'create_user_account' %}">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">create</button>
+    </form>
+    {% for name in request.user.useraccount_set.all %}
+        {{ name }}
+        <form method="GET" action="{% url 'update_user_account' name.pk %}">
+            {% csrf_token %}
+            <button type="submit">update</button>
+        </form>
+        <form method="POST" action="{% url 'delete_user_account' name.pk %}">
+            {% csrf_token %}
+            <button type="submit">delete</button>
+        </form>
+    {% endfor %}
+{% endblock %}

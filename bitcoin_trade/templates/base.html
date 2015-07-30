@@ -11,6 +11,7 @@
 <a href="/">home</a>
 {% if user.id %}
     <a href="{% url 'logout' %}">logout</a>
+    <a href="{% url 'account_settings' %}">account settings</a>
 {% else %}
     <a href="/registration/">register</a>
     <a href="{% url 'login' %}">login</a>

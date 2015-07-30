@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-class UserProfile(models.Model):
+class UserAccount(models.Model):
     user = models.ForeignKey(User)
     api_key = models.CharField(max_length=50)
     secret = models.CharField(max_length=50)
