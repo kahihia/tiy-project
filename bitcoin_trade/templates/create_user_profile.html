@@ -2,10 +2,10 @@
 
 {% block content %}
 
-    {{ user.username }}
     <form method="post">
             {% csrf_token %}
             {{ form }}
             <button class="btn_form" type="submit" value="Create" name="Register">Create</button>
     </form>
+
 {% endblock %}
