@@ -1,10 +1,10 @@
+import base64
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 import http.client
 import urllib.request, urllib.parse, urllib.error
-import json
 import hashlib
 import hmac
 import time
@@ -33,8 +33,9 @@ class Trade(models.Model):
 def my_handler(sender, instance, **kwargs):
     useraccount = UserAccount.objects.get(user=instance.user)
     api_key = useraccount.api_key
-    secret = useraccount.secret
-    nonce = int(((time.time() - 1398621111) * 10).split('.')[0])
+    secret = useraccount.secret.encode()
+    print(type(secret))
+    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "Trade",
               "pair": instance.pair,
               "type": instance.type,
@@ -42,7 +43,9 @@ def my_handler(sender, instance, **kwargs):
               "amount": instance.amount,
               "nonce": nonce}
     parms = urllib.parse.urlencode(parms)
+    # secret2 = base64.b64encode(secret)
     hashed = hmac.new(secret, digestmod=hashlib.sha512)
+    parms = parms.encode()
     hashed.update(parms)
     signature = hashed.hexdigest()
     headers = {"Content-type": "application/x-www-form-urlencoded",
@@ -50,14 +53,18 @@ def my_handler(sender, instance, **kwargs):
                "Sign": signature}
     conn = http.client.HTTPSConnection("btc-e.com")
     conn.request("POST", "/tapi", parms, headers)
-
-    response = conn.getresponse()
-    print(response.status, response.reason)
+    response = conn.getresponse().read()
+    print(response)
 
 
 class CancelOrder(models.Model):
     user = models.ForeignKey(User)
     order_id = models.IntegerField()
+
+
+@receiver(post_save, sender=CancelOrder)
+def my_handler(sender, instance, **kwargs):
+    pass
 
 
 class Ticker(models.Model):
