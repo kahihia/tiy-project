@@ -12,6 +12,8 @@
 {% if user.id %}
     <a href="{% url 'logout' %}">logout</a>
     <a href="{% url 'account_settings' %}">account settings</a>
+    <a href="{% url 'create_trade_form' %}">create trade</a>
+    <a href="{% url 'create_cancel_order_view' %}">cancel trade</a>
 {% else %}
     <a href="/registration/">register</a>
     <a href="{% url 'login' %}">login</a>

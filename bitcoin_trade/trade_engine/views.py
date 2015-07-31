@@ -1,3 +1,5 @@
+from urllib.request import urlopen
+import json
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect
@@ -6,6 +8,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from trade_engine.models import UserAccount, Balance, Trade, CancelOrder, Ticker
 from django.contrib.auth.forms import UserCreationForm
 from django.template import RequestContext
+from trade_engine.forms import TradeForm, CancelOrderForm
 
 
 def base(request):
@@ -41,6 +44,30 @@ def account_settings(request):
     return render_to_response('account_settings.html', context, context_instance=RequestContext(request))
 
 
+class CreateTradeFormView(CreateView):
+
+    model = Trade
+    template_name = 'trade.html'
+    success_url = reverse_lazy('create_trade_form')
+    form_class = TradeForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+class CreateCancelOrderView(CreateView):
+
+    model = CancelOrder
+    template_name = 'cancel_order.html'
+    success_url = reverse_lazy('create_cancel_order_view')
+    form_class = CancelOrderForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
 class CreateUserAccountView(CreateView):
     model = UserAccount
     template_name = "create_user_account.html"
@@ -66,3 +93,5 @@ class UpdateUserAccountView(UpdateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
+
+
