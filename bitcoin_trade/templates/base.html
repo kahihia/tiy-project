@@ -10,6 +10,13 @@
 {{ user.username }}
 <a href="/">home</a>
 {% if user.id %}
+    <form action="{% url 'get_balance_form' %}" method="POST">
+        {% csrf_token %}
+        <ul>
+            {{ form.as_ul }}
+        </ul>
+        <input type="submit" value="Get Balance" />
+    </form>
     <a href="{% url 'logout' %}">logout</a>
     <a href="{% url 'account_settings' %}">account settings</a>
     <a href="{% url 'create_trade_form' %}">create trade</a>

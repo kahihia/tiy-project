@@ -2,6 +2,13 @@ from django import forms
 from trade_engine.models import Balance, Trade, CancelOrder, Ticker
 
 
+class BalanceForm(forms.ModelForm):
+
+    class Meta:
+        model = Balance
+        exclude = ["user"]
+
+
 class TradeForm(forms.ModelForm):
 
     class Meta:

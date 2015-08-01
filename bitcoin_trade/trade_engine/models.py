@@ -17,8 +17,28 @@ class UserAccount(models.Model):
 
 class Balance(models.Model):
     user = models.ForeignKey(User)
-    btc = models.DecimalField(max_digits=12, decimal_places=8)
-    usd = models.DecimalField(max_digits=5, decimal_places=2)
+
+
+@receiver(post_save, sender=Balance)
+def balance_handler(sender, instance, **kwargs):
+    useraccount = instance.user.UserAccount
+    api_key = useraccount.api_key
+    secret = useraccount.secret.encode()
+    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
+    parms = {"method": "getInfo",
+             "nonce": nonce}
+    parms = urllib.parse.urlencode(parms)
+    hashed = hmac.new(secret, digestmod=hashlib.sha512)
+    parms = parms.encode()
+    hashed.update(parms)
+    signature = hashed.hexdigest()
+    headers = {"Content-type": "application/x-www-form-urlencoded",
+               "Key": api_key,
+               "Sign": signature}
+    conn = http.client.HTTPSConnection("btc-e.com")
+    conn.request("POST", "/tapi", parms, headers)
+    response = conn.getresponse().read()
+    print(response)
 
 
 class Trade(models.Model):
@@ -30,10 +50,8 @@ class Trade(models.Model):
 
 
 @receiver(post_save, sender=Trade)
-def my_handler(sender, instance, **kwargs):
-    print("HERE")
+def trade_handler(sender, instance, **kwargs):
     useraccount = instance.user.UserAccount
-    print("USERACCOUNT", useraccount)
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
@@ -63,7 +81,7 @@ class CancelOrder(models.Model):
 
 
 @receiver(post_save, sender=CancelOrder)
-def my_handler(sender, instance, **kwargs):
+def cancel_order_handler(sender, instance, **kwargs):
     useraccount = instance.user.UserAccount
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()

@@ -8,7 +8,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from trade_engine.models import UserAccount, Balance, Trade, CancelOrder, Ticker
 from django.contrib.auth.forms import UserCreationForm
 from django.template import RequestContext
-from trade_engine.forms import TradeForm, CancelOrderForm
+from trade_engine.forms import BalanceForm, TradeForm, CancelOrderForm
 
 
 def base(request):
@@ -42,6 +42,18 @@ def user_registration(request):
 def account_settings(request):
     context = {}
     return render_to_response('account_settings.html', context, context_instance=RequestContext(request))
+
+
+class CreateBalanceFormView(CreateView):
+
+    model = Balance
+    template_name = 'base.html'
+    success_url = reverse_lazy('base')
+    form_class = BalanceForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
 class CreateTradeFormView(CreateView):
