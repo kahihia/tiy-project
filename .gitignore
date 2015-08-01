@@ -1,5 +1,5 @@
 .idea/
-.direnv/
+.direnv/*
 __pycache__
 *.sqlite3
 *.ipynb
