@@ -34,7 +34,6 @@ def my_handler(sender, instance, **kwargs):
     useraccount = UserAccount.objects.get(user=instance.user)
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
-    print(type(secret))
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "Trade",
               "pair": instance.pair,
@@ -43,7 +42,6 @@ def my_handler(sender, instance, **kwargs):
               "amount": instance.amount,
               "nonce": nonce}
     parms = urllib.parse.urlencode(parms)
-    # secret2 = base64.b64encode(secret)
     hashed = hmac.new(secret, digestmod=hashlib.sha512)
     parms = parms.encode()
     hashed.update(parms)
@@ -64,7 +62,25 @@ class CancelOrder(models.Model):
 
 @receiver(post_save, sender=CancelOrder)
 def my_handler(sender, instance, **kwargs):
-    pass
+    useraccount = UserAccount.objects.get(user=instance.user)
+    api_key = useraccount.api_key
+    secret = useraccount.secret.encode()
+    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
+    parms = {"method": "CancelOrder",
+             "order_id": instance.order_id,
+             "nonce": nonce}
+    parms = urllib.parse.urlencode(parms)
+    hashed = hmac.new(secret, digestmod=hashlib.sha512)
+    parms = parms.encode()
+    hashed.update(parms)
+    signature = hashed.hexdigest()
+    headers = {"Content-type": "application/x-www-form-urlencoded",
+               "Key": api_key,
+               "Sign": signature}
+    conn = http.client.HTTPSConnection("btc-e.com")
+    conn.request("POST", "/tapi", parms, headers)
+    response = conn.getresponse().read()
+    print(response)
 
 
 class Ticker(models.Model):
