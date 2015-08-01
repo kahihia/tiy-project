@@ -10,7 +10,7 @@ import hmac
 import time
 
 class UserAccount(models.Model):
-    user = models.ForeignKey(User)
+    user = models.OneToOneField(User, related_name='UserAccount')
     api_key = models.CharField(max_length=100)
     secret = models.CharField(max_length=100)
 
@@ -25,22 +25,24 @@ class Trade(models.Model):
     user = models.ForeignKey(User)
     pair = models.CharField(max_length=8, default="btc_usd")
     type = models.CharField(max_length=4)
-    rate = models.DecimalField(max_digits=5, decimal_places=2)
-    amount = models.DecimalField(max_digits=12, decimal_places=8)
+    rate = models.DecimalField(max_digits=13, decimal_places=8)
+    amount = models.DecimalField(max_digits=10, decimal_places=8)
 
 
 @receiver(post_save, sender=Trade)
 def my_handler(sender, instance, **kwargs):
-    useraccount = UserAccount.objects.get(user=instance.user)
+    print("HERE")
+    useraccount = instance.user.UserAccount
+    print("USERACCOUNT", useraccount)
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "Trade",
-              "pair": instance.pair,
-              "type": instance.type,
-              "rate": instance.rate,
-              "amount": instance.amount,
-              "nonce": nonce}
+             "pair": instance.pair,
+             "type": instance.type,
+             "rate": instance.rate,
+             "amount": instance.amount,
+             "nonce": nonce}
     parms = urllib.parse.urlencode(parms)
     hashed = hmac.new(secret, digestmod=hashlib.sha512)
     parms = parms.encode()
@@ -62,7 +64,7 @@ class CancelOrder(models.Model):
 
 @receiver(post_save, sender=CancelOrder)
 def my_handler(sender, instance, **kwargs):
-    useraccount = UserAccount.objects.get(user=instance.user)
+    useraccount = instance.user.UserAccount
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
