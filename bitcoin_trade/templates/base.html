@@ -12,10 +12,11 @@
 {% if user.id %}
     <form action="{% url 'get_balance_form' %}" method="POST">
         {% csrf_token %}
-        <ul>
-            {{ form.as_ul }}
-        </ul>
         <input type="submit" value="Get Balance" />
+    </form>
+    <form action="{% url 'get_active_orders_form' %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Get Active Orders" />
     </form>
     <a href="{% url 'logout' %}">logout</a>
     <a href="{% url 'account_settings' %}">account settings</a>

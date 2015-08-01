@@ -41,6 +41,34 @@ def balance_handler(sender, instance, **kwargs):
     print(response)
 
 
+class ActiveOrder(models.Model):
+    user = models.ForeignKey(User)
+    pair = models.CharField(max_length=8, default="btc_usd")
+
+
+@receiver(post_save, sender=ActiveOrder)
+def active_order_handler(sender, instance, **kwargs):
+    useraccount = instance.user.UserAccount
+    api_key = useraccount.api_key
+    secret = useraccount.secret.encode()
+    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
+    parms = {"method": "ActiveOrders",
+             "pair": instance.pair,
+             "nonce": nonce}
+    parms = urllib.parse.urlencode(parms)
+    hashed = hmac.new(secret, digestmod=hashlib.sha512)
+    parms = parms.encode()
+    hashed.update(parms)
+    signature = hashed.hexdigest()
+    headers = {"Content-type": "application/x-www-form-urlencoded",
+               "Key": api_key,
+               "Sign": signature}
+    conn = http.client.HTTPSConnection("btc-e.com")
+    conn.request("POST", "/tapi", parms, headers)
+    response = conn.getresponse().read()
+    print(response)
+
+
 class Trade(models.Model):
     user = models.ForeignKey(User)
     pair = models.CharField(max_length=8, default="btc_usd")

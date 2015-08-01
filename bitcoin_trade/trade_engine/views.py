@@ -5,10 +5,10 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from trade_engine.models import UserAccount, Balance, Trade, CancelOrder, Ticker
+from trade_engine.models import UserAccount, Balance, ActiveOrder, Trade, CancelOrder, Ticker
 from django.contrib.auth.forms import UserCreationForm
 from django.template import RequestContext
-from trade_engine.forms import BalanceForm, TradeForm, CancelOrderForm
+from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOrderForm
 
 
 def base(request):
@@ -50,6 +50,18 @@ class CreateBalanceFormView(CreateView):
     template_name = 'base.html'
     success_url = reverse_lazy('base')
     form_class = BalanceForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+class CreateActiveOrderFormView(CreateView):
+
+    model = ActiveOrder
+    template_name = 'base.html'
+    success_url = reverse_lazy('base')
+    form_class = ActiveOrderForm
 
     def form_valid(self, form):
         form.instance.user = self.request.user
