@@ -43,7 +43,6 @@ def balance_handler(sender, instance, **kwargs):
 
 class ActiveOrder(models.Model):
     user = models.ForeignKey(User)
-    pair = models.CharField(max_length=8, default="btc_usd")
 
 
 @receiver(post_save, sender=ActiveOrder)
@@ -53,7 +52,7 @@ def active_order_handler(sender, instance, **kwargs):
     secret = useraccount.secret.encode()
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "ActiveOrders",
-             "pair": instance.pair,
+             "pair": "btc_usd",
              "nonce": nonce}
     parms = urllib.parse.urlencode(parms)
     hashed = hmac.new(secret, digestmod=hashlib.sha512)
@@ -116,6 +115,49 @@ def cancel_order_handler(sender, instance, **kwargs):
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "CancelOrder",
              "order_id": instance.order_id,
+             "nonce": nonce}
+    parms = urllib.parse.urlencode(parms)
+    hashed = hmac.new(secret, digestmod=hashlib.sha512)
+    parms = parms.encode()
+    hashed.update(parms)
+    signature = hashed.hexdigest()
+    headers = {"Content-type": "application/x-www-form-urlencoded",
+               "Key": api_key,
+               "Sign": signature}
+    conn = http.client.HTTPSConnection("btc-e.com")
+    conn.request("POST", "/tapi", parms, headers)
+    response = conn.getresponse().read()
+    print(response)
+
+
+class TradeHistory(models.Model):
+    user = models.ForeignKey(User)
+    _From = models.IntegerField(default=0)
+    count = models.IntegerField(default=1000)
+    from_id = models.IntegerField(default=0)
+    end_id = models.IntegerField()
+    order = models.CharField(max_length=4, default="DESC")
+    since = models.DateTimeField()
+    end = models.DateTimeField()
+    pair = models.CharField(max_length=7, default="btc_usd")
+
+
+@receiver(post_save, sender=TradeHistory)
+def cancel_order_handler(sender, instance, **kwargs):
+    useraccount = instance.user.UserAccount
+    api_key = useraccount.api_key
+    secret = useraccount.secret.encode()
+    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
+    parms = {"method": "CancelOrder",
+             "user": instance.user,
+             "from": instance._From,
+             "count": instance.count,
+             "from_id": instance.from_id,
+             "end_id": instance.end_id,
+             "order": instance.order,
+             "since": instance.since,
+             "end": instance.end,
+             "pair": instance.pair,
              "nonce": nonce}
     parms = urllib.parse.urlencode(parms)
     hashed = hmac.new(secret, digestmod=hashlib.sha512)

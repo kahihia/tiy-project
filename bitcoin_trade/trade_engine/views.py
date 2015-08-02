@@ -3,12 +3,12 @@ import json
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect
-from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from trade_engine.models import UserAccount, Balance, ActiveOrder, Trade, CancelOrder, Ticker
+from trade_engine.mixins import AddActiveOrderFormMixin
+from trade_engine.models import UserAccount, Balance, ActiveOrder, Trade, CancelOrder, TradeHistory, Ticker
 from django.contrib.auth.forms import UserCreationForm
 from django.template import RequestContext
-from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOrderForm
+from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOrderForm, TradeHistoryForm
 
 
 def base(request):
@@ -83,9 +83,21 @@ class CreateTradeFormView(CreateView):
 class CreateCancelOrderView(CreateView):
 
     model = CancelOrder
-    template_name = 'cancel_order.html'
+    template_name = 'cancel_trade.html'
     success_url = reverse_lazy('create_cancel_order_view')
     form_class = CancelOrderForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+class CreateTradeHistoryView(CreateView):
+
+    model = TradeHistory
+    template_name = 'trade_history.html'
+    success_url = reverse_lazy('trade_history_view')
+    form_class = TradeHistoryForm
 
     def form_valid(self, form):
         form.instance.user = self.request.user

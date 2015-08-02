@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form method="POST" action="{% url 'trade_history_view' %}">
+        {% csrf_token %}
+        {{ form.as_ul }}
+        <button type="submit">Get Trade History</button>
+{% endblock %}
