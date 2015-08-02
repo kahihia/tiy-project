@@ -134,29 +134,21 @@ class TradeHistory(models.Model):
     user = models.ForeignKey(User)
     _From = models.IntegerField(default=0)
     count = models.IntegerField(default=1000)
-    from_id = models.IntegerField(default=0)
-    end_id = models.IntegerField()
     order = models.CharField(max_length=4, default="DESC")
-    since = models.DateTimeField()
-    end = models.DateTimeField()
     pair = models.CharField(max_length=7, default="btc_usd")
 
 
 @receiver(post_save, sender=TradeHistory)
-def cancel_order_handler(sender, instance, **kwargs):
+def trade_history_handler(sender, instance, **kwargs):
     useraccount = instance.user.UserAccount
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
-    parms = {"method": "CancelOrder",
+    parms = {"method": "TradeHistory",
              "user": instance.user,
              "from": instance._From,
              "count": instance.count,
-             "from_id": instance.from_id,
-             "end_id": instance.end_id,
              "order": instance.order,
-             "since": instance.since,
-             "end": instance.end,
              "pair": instance.pair,
              "nonce": nonce}
     parms = urllib.parse.urlencode(parms)
