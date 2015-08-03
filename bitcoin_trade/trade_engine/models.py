@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
 import jsonfield
+import json
 import http.client
 import urllib.request, urllib.parse, urllib.error
 import hashlib
@@ -25,6 +26,7 @@ def balance_handler(sender, instance, **kwargs):
     useraccount = instance.user.UserAccount
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
+    user = instance.user
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "getInfo",
              "nonce": nonce}
@@ -39,7 +41,12 @@ def balance_handler(sender, instance, **kwargs):
     conn = http.client.HTTPSConnection("btc-e.com")
     conn.request("POST", "/tapi", parms, headers)
     response = conn.getresponse().read()
-    print(response)
+    response = response.decode('latin-1')
+    response = json.loads(response)
+    usd = response['return']['funds']['usd']
+    btc = response['return']['funds']['btc']
+    object = {'user': user, 'usd': usd, 'btc': btc}
+    BalanceTicker.objects.create(**object)
 
 
 class BalanceTicker(models.Model):
@@ -57,6 +64,7 @@ def active_order_handler(sender, instance, **kwargs):
     useraccount = instance.user.UserAccount
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
+    user = instance.user
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "ActiveOrders",
              "pair": "btc_usd",
@@ -72,7 +80,10 @@ def active_order_handler(sender, instance, **kwargs):
     conn = http.client.HTTPSConnection("btc-e.com")
     conn.request("POST", "/tapi", parms, headers)
     response = conn.getresponse().read()
-    print(response)
+    response = response.decode('latin-1')
+    response = json.loads(response)
+    object = {'user': user, 'json': response}
+    ActiveOrderTicker.objects.create(**object)
 
 
 class ActiveOrderTicker(models.Model):
@@ -94,6 +105,7 @@ def trade_handler(sender, instance, **kwargs):
     useraccount = instance.user.UserAccount
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
+    user = instance.user
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "Trade",
              "pair": instance.pair,
@@ -112,7 +124,15 @@ def trade_handler(sender, instance, **kwargs):
     conn = http.client.HTTPSConnection("btc-e.com")
     conn.request("POST", "/tapi", parms, headers)
     response = conn.getresponse().read()
-    print(response)
+    response = response.decode('latin-1')
+    response = json.loads(response)
+    object = {'user': user, 'json': response}
+    TradeTicker.objects.create(**object)
+
+
+class TradeTicker(models.Model):
+    user = models.ForeignKey(User)
+    json = jsonfield.JSONField()
 
 
 class CancelOrder(models.Model):
@@ -125,6 +145,7 @@ def cancel_order_handler(sender, instance, **kwargs):
     useraccount = instance.user.UserAccount
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
+    user = instance.user
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "CancelOrder",
              "order_id": instance.order_id,
@@ -140,7 +161,15 @@ def cancel_order_handler(sender, instance, **kwargs):
     conn = http.client.HTTPSConnection("btc-e.com")
     conn.request("POST", "/tapi", parms, headers)
     response = conn.getresponse().read()
-    print(response)
+    response = response.decode('latin-1')
+    response = json.loads(response)
+    object = {'user': user, 'json': response}
+    CancelOrderTicker.objects.create(**object)
+
+
+class CancelOrderTicker(models.Model):
+    user = models.ForeignKey(User)
+    json = jsonfield.JSONField()
 
 
 class TradeHistory(models.Model):
@@ -156,6 +185,7 @@ def trade_history_handler(sender, instance, **kwargs):
     useraccount = instance.user.UserAccount
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
+    user = instance.user
     nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
     parms = {"method": "TradeHistory",
              "user": instance.user,
@@ -175,7 +205,15 @@ def trade_history_handler(sender, instance, **kwargs):
     conn = http.client.HTTPSConnection("btc-e.com")
     conn.request("POST", "/tapi", parms, headers)
     response = conn.getresponse().read()
-    print(response)
+    response = response.decode('latin-1')
+    response = json.loads(response)
+    object = {'user': user, 'json': response}
+    TradeHistoryTicker.objects.create(**object)
+
+
+class TradeHistoryTicker(models.Model):
+    user = models.ForeignKey(User)
+    json = jsonfield.JSONField()
 
 
 class Ticker(models.Model):
