@@ -1,11 +1,11 @@
 from urllib.request import urlopen
 import json
 from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from trade_engine.mixins import AddActiveOrderFormMixin
-from trade_engine.models import UserAccount, Balance, ActiveOrder, Trade, CancelOrder, TradeHistory, Ticker
+from trade_engine.models import UserAccount, Balance, ActiveOrder, Trade, CancelOrder, TradeHistory, Ticker, Depth
 from django.contrib.auth.forms import UserCreationForm
 from django.template import RequestContext
 from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOrderForm, TradeHistoryForm
@@ -42,6 +42,27 @@ def user_registration(request):
 def account_settings(request):
     context = {}
     return render_to_response('account_settings.html', context, context_instance=RequestContext(request))
+
+
+def ticker_view(request):
+    btce_prices = urlopen('https://btc-e.com/api/2/btc_usd/ticker')
+    str_response = btce_prices.readall().decode('utf-8')
+    btcejson = json.loads(str_response)
+    ticker_obj = btcejson['ticker']
+    Ticker.objects.create(**ticker_obj)
+    context = {}
+    return render_to_response('base.html', context, context_instance=RequestContext(request))
+
+
+def depth_view(request):
+    btce_depth = urlopen('https://btc-e.com/api/3/depth/btc_usd')
+    str_response = btce_depth.readall().decode('utf-8')
+    btcejson = json.loads(str_response)
+    depth_obj = btcejson['btc_usd']
+    print(depth_obj)
+    Depth.objects.create(**depth_obj)
+    context = {}
+    return render_to_response('base.html', context, context_instance=RequestContext(request))
 
 
 class CreateBalanceFormView(CreateView):
@@ -129,5 +150,3 @@ class UpdateUserAccountView(UpdateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)
-
-

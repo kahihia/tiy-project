@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import models
+import jsonfield
 import http.client
 import urllib.request, urllib.parse, urllib.error
 import hashlib
@@ -41,6 +42,12 @@ def balance_handler(sender, instance, **kwargs):
     print(response)
 
 
+class BalanceTicker(models.Model):
+    user = models.ForeignKey(User, related_name='UserBalance')
+    usd = models.DecimalField(max_digits=13, decimal_places=8)
+    btc = models.DecimalField(max_digits=10, decimal_places=8)
+
+
 class ActiveOrder(models.Model):
     user = models.ForeignKey(User)
 
@@ -66,6 +73,12 @@ def active_order_handler(sender, instance, **kwargs):
     conn.request("POST", "/tapi", parms, headers)
     response = conn.getresponse().read()
     print(response)
+
+
+class ActiveOrderTicker(models.Model):
+    user = models.ForeignKey(User, related_name='UserActiveOrders')
+    json = jsonfield.JSONField()
+
 
 
 class Trade(models.Model):
@@ -171,7 +184,13 @@ class Ticker(models.Model):
     avg = models.DecimalField(max_digits=6, decimal_places=2)
     vol = models.DecimalField(max_digits=20, decimal_places=2)
     vol_cur = models.DecimalField(max_digits=9, decimal_places=2)
+    server_time = models.IntegerField()
     last = models.DecimalField(max_digits=6, decimal_places=2)
     buy = models.DecimalField(max_digits=6, decimal_places=2)
     sell = models.DecimalField(max_digits=6, decimal_places=2)
     updated = models.IntegerField()
+
+
+class Depth(models.Model):
+    asks = models.TextField()
+    bids = models.TextField()

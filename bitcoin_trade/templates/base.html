@@ -18,6 +18,14 @@
         {% csrf_token %}
         <input type="submit" value="Get Active Orders" />
     </form>
+    <form action="{% url 'get_ticker'  %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Get Ticker" />
+    </form>
+    <form action="{% url 'get_depth'  %}" method="POST">
+        {% csrf_token %}
+        <input type="submit" value="Get Depth" />
+    </form>
 
     <a href="{% url 'logout' %}">logout</a>
     <a href="{% url 'account_settings' %}">account settings</a>

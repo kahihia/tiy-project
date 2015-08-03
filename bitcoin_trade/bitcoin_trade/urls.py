@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.conf.urls import include, url
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login, logout
-from trade_engine.views import base, user_registration, account_settings, CreateBalanceFormView, CreateActiveOrderFormView, CreateTradeFormView, CreateCancelOrderView, CreateTradeHistoryView, CreateUserAccountView, UpdateUserAccountView, DeleteUserAccountView
+from trade_engine.views import base, user_registration, account_settings, ticker_view, depth_view, CreateBalanceFormView, CreateActiveOrderFormView, CreateTradeFormView, CreateCancelOrderView, CreateTradeHistoryView, CreateUserAccountView, UpdateUserAccountView, DeleteUserAccountView
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^account_settings/', login_required(account_settings), name='account_settings'),
     url(r'^get_balance/', login_required(CreateBalanceFormView.as_view()), name='get_balance_form'),
     url(r'^get_active_orders/', login_required(CreateActiveOrderFormView.as_view()), name='get_active_orders_form'),
+    url(r'^get_ticker/', login_required(ticker_view), name='get_ticker'),
+    url(r'^get_depth/', login_required(depth_view), name='get_depth'),
     url(r'^trade/', login_required(CreateTradeFormView.as_view()), name='create_trade_form'),
     url(r'^cancel_trade/', login_required(CreateCancelOrderView.as_view()), name='create_cancel_order_view'),
     url(r'^get_trade_history/', login_required(CreateTradeHistoryView.as_view()), name='trade_history_view'),
