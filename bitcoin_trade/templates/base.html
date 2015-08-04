@@ -9,24 +9,37 @@
 {% block body %}
 {{ user.username }}
 <a href="/">home</a>
+<hr />
 {% if user.id %}
     <form action="{% url 'get_balance_form' %}" method="POST">
         {% csrf_token %}
         <input type="submit" value="Get Balance" />
     </form>
+    <p>USD: {{ balance_ticker.usd }}</p>
+    <p>BTC: {{ balance_ticker.btc }}</p>
     <form action="{% url 'get_active_orders_form'  %}" method="POST">
         {% csrf_token %}
         <input type="submit" value="Get Active Orders" />
     </form>
+    <p>{{ active_order_ticker }}</p>
     <form action="{% url 'get_ticker'  %}" method="POST">
         {% csrf_token %}
         <input type="submit" value="Get Ticker" />
     </form>
+    <p>Current Price: {{ ticker.last }}</p>
+    <p>High: {{ ticker.high }}</p>
+    <p>Low: {{ ticker.low }}</p>
+    <p>Average: {{ ticker.avg }}</p>
+    <p>Volume: {{ ticker.vol_cur }}</p>
     <form action="{% url 'get_depth'  %}" method="POST">
         {% csrf_token %}
         <input type="submit" value="Get Depth" />
     </form>
-
+    {% for ask in depth.asks %}
+       {{ ask }}
+           <br />
+    {% endfor %}
+    <hr />
     <a href="{% url 'logout' %}">logout</a>
     <a href="{% url 'account_settings' %}">account settings</a>
     <a href="{% url 'create_trade_form' %}">create trade</a>

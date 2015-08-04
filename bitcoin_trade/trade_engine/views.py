@@ -5,14 +5,18 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from trade_engine.mixins import AddActiveOrderFormMixin
-from trade_engine.models import UserAccount, Balance, ActiveOrder, Trade, CancelOrder, TradeHistory, Ticker, Depth
+from trade_engine.models import UserAccount, ActiveOrder, ActiveOrderTicker, Balance, BalanceTicker, Trade, TradeTicker, CancelOrder, CancelOrderTicker, TradeHistory, TradeHistoryTicker, Ticker, Depth
 from django.contrib.auth.forms import UserCreationForm
 from django.template import RequestContext
 from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOrderForm, TradeHistoryForm
 
 
 def base(request):
-    return render_to_response("base.html", context_instance=RequestContext(request))
+    context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
+               "active_order_ticker": ActiveOrderTicker.objects.latest(field_name="json"),
+               "ticker": Ticker.objects.latest(field_name="last"),
+               "depth": Depth.objects.all()[Depth.objects.count()-1]}
+    return render_to_response("base.html", context, context_instance=RequestContext(request))
 
 
 def user_registration(request):
@@ -40,7 +44,10 @@ def user_registration(request):
 
 
 def account_settings(request):
-    context = {}
+    context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
+               "active_order_ticker": ActiveOrderTicker.objects.latest(field_name="json"),
+               "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
+               "depth": Depth.objects.all()[Depth.objects.count()-1]}
     return render_to_response('account_settings.html', context, context_instance=RequestContext(request))
 
 
@@ -50,7 +57,10 @@ def ticker_view(request):
     btcejson = json.loads(str_response)
     ticker_obj = btcejson['ticker']
     Ticker.objects.create(**ticker_obj)
-    context = {}
+    context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
+               "active_order_ticker": ActiveOrderTicker.objects.latest(field_name="json"),
+               "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
+               "depth": Depth.objects.all()[Depth.objects.count()-1]}
     return render_to_response('base.html', context, context_instance=RequestContext(request))
 
 
@@ -61,7 +71,10 @@ def depth_view(request):
     depth_obj = btcejson['btc_usd']
     print(depth_obj)
     Depth.objects.create(**depth_obj)
-    context = {}
+    context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
+               "active_order_ticker": ActiveOrderTicker.objects.latest(field_name="json"),
+               "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
+               "depth": Depth.objects.all()[Depth.objects.count()-1]}
     return render_to_response('base.html', context, context_instance=RequestContext(request))
 
 

@@ -1,6 +1,7 @@
 
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from trade_engine.custom_models import SeparatedValuesField
 from django.dispatch import receiver
 from django.db import models
 import jsonfield
@@ -15,6 +16,9 @@ class UserAccount(models.Model):
     user = models.OneToOneField(User, related_name='UserAccount')
     api_key = models.CharField(max_length=100)
     secret = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "{}, {}".format(self.api_key, self.secret)
 
 
 class Balance(models.Model):
@@ -54,6 +58,9 @@ class BalanceTicker(models.Model):
     usd = models.DecimalField(max_digits=13, decimal_places=8)
     btc = models.DecimalField(max_digits=10, decimal_places=8)
 
+    def __str__(self):
+        return "{}, {}".format(self.usd, self.btc)
+
 
 class ActiveOrder(models.Model):
     user = models.ForeignKey(User)
@@ -90,6 +97,8 @@ class ActiveOrderTicker(models.Model):
     user = models.ForeignKey(User, related_name='UserActiveOrders')
     json = jsonfield.JSONField()
 
+    def __str__(self):
+        return "{}".format(self.json)
 
 
 class Trade(models.Model):
@@ -134,6 +143,9 @@ class TradeTicker(models.Model):
     user = models.ForeignKey(User)
     json = jsonfield.JSONField()
 
+    def __str__(self):
+        return self.json
+
 
 class CancelOrder(models.Model):
     user = models.ForeignKey(User)
@@ -170,6 +182,9 @@ def cancel_order_handler(sender, instance, **kwargs):
 class CancelOrderTicker(models.Model):
     user = models.ForeignKey(User)
     json = jsonfield.JSONField()
+
+    def __str__(self):
+        return self.json
 
 
 class TradeHistory(models.Model):
@@ -215,6 +230,9 @@ class TradeHistoryTicker(models.Model):
     user = models.ForeignKey(User)
     json = jsonfield.JSONField()
 
+    def __str__(self):
+        return self.json
+
 
 class Ticker(models.Model):
     high = models.DecimalField(max_digits=6, decimal_places=2)
@@ -228,7 +246,13 @@ class Ticker(models.Model):
     sell = models.DecimalField(max_digits=6, decimal_places=2)
     updated = models.IntegerField()
 
+    def __str__(self):
+        return "{}, {}, {}, {}, {}, {}, {}, {}, {}, {}".format(self.high, self.low, self.avg, self.vol, self.vol_cur, self.server_time, self.last, self.buy, self.sell, self.updated)
+
 
 class Depth(models.Model):
-    asks = models.TextField()
-    bids = models.TextField()
+    asks = SeparatedValuesField()
+    bids = SeparatedValuesField()
+
+    def __str__(self):
+        return "{}, {}".format(self.asks, self.bids)
