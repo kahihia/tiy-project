@@ -1,18 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
+    {% if not user.UserAccount %}
     <form method="GET" action="{% url 'create_user_account' %}">
         {% csrf_token %}
         {{ form }}
         <button type="submit">create</button>
     </form>
-        {{ user.UserAccount }}
+    {% endif %}
+        {% if user.UserAccount %}
         <form method="GET" action="{% url 'update_user_account' user.UserAccount.pk %}">
             {% csrf_token %}
-            <button type="submit">update</button>
+            <button type="submit">update useraccount</button>
         </form>
+            <br />
         <form method="POST" action="{% url 'delete_user_account' user.UserAccount.pk %}">
             {% csrf_token %}
-            <button type="submit">delete</button>
+            <button type="submit">delete useraccount</button>
         </form>
+        {% endif %}
 {% endblock %}

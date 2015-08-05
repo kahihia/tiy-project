@@ -4,9 +4,7 @@
 
     <form action="{% url 'create_cancel_order_view' %}" method="POST">
         {% csrf_token %}
-        <ul>
-            {{ form.as_ul }}
-        </ul>
+            {{ form.as_p }}
         <input type="submit" value="Save" />
     </form>
 

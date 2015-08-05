@@ -100,6 +100,18 @@ class ActiveOrderTicker(models.Model):
     def __str__(self):
         return "{}".format(self.json)
 
+    @property
+    def split_json(self):
+        loads = self.json
+        if loads['success'] == 0:
+            return ["no open orders"]
+        elif loads['success'] == 1:
+            x = loads['return']
+            y = {k: k for k in x}
+            z = list(y.values())
+            return z
+
+
 
 class Trade(models.Model):
     user = models.ForeignKey(User)
@@ -256,3 +268,17 @@ class Depth(models.Model):
 
     def __str__(self):
         return "{}, {}".format(self.asks, self.bids)
+
+    @property
+    def split_bids(self):
+        x = self.bids[1:]
+        y = x[:-1]
+        z = list(y.split("],["))
+        return z
+
+    @property
+    def split_asks(self):
+        x = self.asks[1:]
+        y = x[:-1]
+        z = list(y.split("],["))
+        return z

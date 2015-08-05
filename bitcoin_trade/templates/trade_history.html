@@ -3,6 +3,7 @@
 {% block content %}
     <form method="POST" action="{% url 'trade_history_view' %}">
         {% csrf_token %}
-        {{ form.as_ul }}
+        {{ form.as_p }}
         <button type="submit">Get Trade History</button>
+    </form>
 {% endblock %}

@@ -1,7 +1,7 @@
 from urllib.request import urlopen
 import json
 from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import render_to_response
+from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from trade_engine.mixins import AddActiveOrderFormMixin
@@ -13,7 +13,7 @@ from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOr
 
 def base(request):
     context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
-               "active_order_ticker": ActiveOrderTicker.objects.latest(field_name="json"),
+               "active_order_ticker": ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1],
                "ticker": Ticker.objects.latest(field_name="last"),
                "depth": Depth.objects.all()[Depth.objects.count()-1]}
     return render_to_response("base.html", context, context_instance=RequestContext(request))
@@ -45,7 +45,7 @@ def user_registration(request):
 
 def account_settings(request):
     context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
-               "active_order_ticker": ActiveOrderTicker.objects.latest(field_name="json"),
+               "active_order_ticker": ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1],
                "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
                "depth": Depth.objects.all()[Depth.objects.count()-1]}
     return render_to_response('account_settings.html', context, context_instance=RequestContext(request))
@@ -58,7 +58,7 @@ def ticker_view(request):
     ticker_obj = btcejson['ticker']
     Ticker.objects.create(**ticker_obj)
     context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
-               "active_order_ticker": ActiveOrderTicker.objects.latest(field_name="json"),
+               "active_order_ticker": ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1],
                "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
                "depth": Depth.objects.all()[Depth.objects.count()-1]}
     return render_to_response('base.html', context, context_instance=RequestContext(request))
@@ -72,7 +72,7 @@ def depth_view(request):
     print(depth_obj)
     Depth.objects.create(**depth_obj)
     context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
-               "active_order_ticker": ActiveOrderTicker.objects.latest(field_name="json"),
+               "active_order_ticker": ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1],
                "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
                "depth": Depth.objects.all()[Depth.objects.count()-1]}
     return render_to_response('base.html', context, context_instance=RequestContext(request))
@@ -111,8 +111,16 @@ class CreateTradeFormView(CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        super().form_valid(form)
+        return render(self.request, self.template_name, self.get_context_data(form=form))
 
+    def get_context_data(self, **kwargs):
+        ctx = super(CreateTradeFormView, self).get_context_data(**kwargs)
+        ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
+        ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
+        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
+        return ctx
 
 class CreateCancelOrderView(CreateView):
 
@@ -123,7 +131,16 @@ class CreateCancelOrderView(CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        super().form_valid(form)
+        return render(self.request, self.template_name, self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CreateCancelOrderView, self).get_context_data(**kwargs)
+        ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
+        ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
+        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
+        return ctx
 
 
 class CreateTradeHistoryView(CreateView):
@@ -135,7 +152,16 @@ class CreateTradeHistoryView(CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        super().form_valid(form)
+        return render(self.request, self.template_name, self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CreateTradeHistoryView, self).get_context_data(**kwargs)
+        ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
+        ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
+        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
+        return ctx
 
 
 class CreateUserAccountView(CreateView):
@@ -146,7 +172,16 @@ class CreateUserAccountView(CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        super().form_valid(form)
+        return render(self.request, self.template_name, self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CreateUserAccountView, self).get_context_data(**kwargs)
+        ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
+        ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
+        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
+        return ctx
 
 
 class DeleteUserAccountView(DeleteView):
@@ -162,4 +197,13 @@ class UpdateUserAccountView(UpdateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super().form_valid(form)
+        super().form_valid(form)
+        return render(self.request, self.template_name, self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        ctx = super(UpdateUserAccountView, self).get_context_data(**kwargs)
+        ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
+        ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
+        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
+        return ctx
