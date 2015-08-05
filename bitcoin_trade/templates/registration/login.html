@@ -3,7 +3,7 @@
 {% block body %}
     <form method="post">
         {% csrf_token %}
-        {{ form.as_table }}
+        {{ form.as_p }}
         <button type="submit">login</button>
         <input type="hidden" name="next" value="{% url 'base' %}" />
     </form>

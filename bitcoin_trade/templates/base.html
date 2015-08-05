@@ -27,6 +27,9 @@ form {
     text-align: center;
     display: block;
 }
+.helptext {
+    display: none;
+}
 </style>
 <body>
 
@@ -34,6 +37,9 @@ form {
 <nav>
 <a href="/account_settings/">{{ user.username }}</a>
 <a href="/">home</a>
+{% if user.id %}
+<a href="{% url 'logout' %}">logout</a>
+{% endif %}
 </nav>
 <hr />
 {% if user.id %}
@@ -108,7 +114,6 @@ form {
     </div>
     <div class="footer">
     <hr />
-    <a href="{% url 'logout' %}">logout</a>
     <a href="{% url 'account_settings' %}">account settings</a>
     <a href="{% url 'create_trade_form' %}">create trade</a>
     <a href="{% url 'create_cancel_order_view' %}">cancel trade</a>
