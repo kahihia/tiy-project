@@ -1,4 +1,3 @@
-
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from trade_engine.custom_models import SeparatedValuesField

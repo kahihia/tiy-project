@@ -14,7 +14,7 @@ from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOr
 def base(request):
     context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
                "active_order_ticker": ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1],
-               "ticker": Ticker.objects.latest(field_name="last"),
+               "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
                "depth": Depth.objects.all()[Depth.objects.count()-1]}
     return render_to_response("base.html", context, context_instance=RequestContext(request))
 
@@ -118,7 +118,7 @@ class CreateTradeFormView(CreateView):
         ctx = super(CreateTradeFormView, self).get_context_data(**kwargs)
         ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
         ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
-        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]
         ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
         return ctx
 
@@ -138,7 +138,7 @@ class CreateCancelOrderView(CreateView):
         ctx = super(CreateCancelOrderView, self).get_context_data(**kwargs)
         ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
         ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
-        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]
         ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
         return ctx
 
@@ -159,7 +159,7 @@ class CreateTradeHistoryView(CreateView):
         ctx = super(CreateTradeHistoryView, self).get_context_data(**kwargs)
         ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
         ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
-        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]
         ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
         return ctx
 
@@ -179,7 +179,7 @@ class CreateUserAccountView(CreateView):
         ctx = super(CreateUserAccountView, self).get_context_data(**kwargs)
         ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
         ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
-        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]
         ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
         return ctx
 
@@ -204,6 +204,6 @@ class UpdateUserAccountView(UpdateView):
         ctx = super(UpdateUserAccountView, self).get_context_data(**kwargs)
         ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
         ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
-        ctx['ticker'] = Ticker.objects.latest(field_name="last")
+        ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]
         ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
         return ctx
