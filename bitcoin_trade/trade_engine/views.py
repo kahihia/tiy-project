@@ -1,5 +1,7 @@
 from urllib.request import urlopen
 import json
+import numpy as np
+from django.db.models import Avg
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect
@@ -17,6 +19,56 @@ def base(request):
                "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
                "depth": Depth.objects.all()[Depth.objects.count()-1]}
     return render_to_response("base.html", context, context_instance=RequestContext(request))
+
+
+def indicators(request):
+    bull = False
+    null = False
+    bear = False
+    lastprice = Ticker.objects.all()[Ticker.objects.count()-1]
+    twoprice = Ticker.objects.all()[Ticker.objects.count()-2]
+    threeprice = Ticker.objects.all()[Ticker.objects.count()-3]
+    fourprice = Ticker.objects.all()[Ticker.objects.count()-4]
+    one = lastprice.last
+    two = twoprice.last
+    three = threeprice.last
+    four = fourprice.last
+    if one > two and one > three and one > four:
+        bull = True
+        null = False
+        bear = False
+    elif one < two and one < three and one < four:
+        bull = False
+        null = False
+        bear = True
+    else:
+        bull = False
+        null = True
+        bear = False
+    bull_long = False
+    null_long = False
+    bear_long = False
+    allpricemean = Ticker.objects.all().aggregate(Avg('last')).pop('last__avg', 0)
+    print(allpricemean)
+    if one > (allpricemean-(0.05*allpricemean)):
+        bull_long = True
+        null_long = False
+        bear_long = False
+    elif one < (allpricemean+(0.05*allpricemean)):
+        bull_long = False
+        null_long = False
+        bear_long = True
+    else:
+        bull_long = False
+        null_long = True
+        bear_long = False
+    context = {"bull": bull,
+               "null": null,
+               "bear": bear,
+               "bull_long": bull_long,
+               "null_long": null_long,
+               "bear_long": bear_long}
+    return render_to_response("indicators.html", context, context_instance=RequestContext(request))
 
 
 def user_registration(request):

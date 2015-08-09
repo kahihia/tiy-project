@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <style>
+
+    </style>
+</head>
+<body>
+{% block body %}
+<nav>
+<a href="/account_settings/">{{ user.username }}</a>
+<a href="/">home</a>
+{% if user.id %}
+<a href="{% url 'logout' %}">logout</a>
+<a href="{% url 'indicators' %}">indicators</a>
+{% endif %}
+</nav>
+<div>
+<table align="center">
+<tr>
+    <th colspan="3">Short Term Indicator</th>
+</tr>
+<tr>
+{% if bull %}
+<td style="background-color: green">bull</td>
+<td>sideways</td>
+<td>bear</td>
+{% endif %}
+{% if null %}
+<td>bull</td>
+<td style="background-color: yellow">sideways</td>
+<td>bear</td>
+{% endif %}
+{% if bear %}
+<td>bull</td>
+<td>sideways</td>
+<td style="background-color: red">bear</td>
+{% endif %}
+</tr>
+</table>
+</div>
+<div>
+<table align="center">
+<tr>
+    <th colspan="3">Long Term Indicator</th>
+</tr>
+<tr>
+{% if bull_long %}
+<td style="background-color: green">bull</td>
+<td>sideways</td>
+<td>bear</td>
+{% endif %}
+{% if null_long %}
+<td>bull</td>
+<td style="background-color: yellow">sideways</td>
+<td>bear</td>
+{% endif %}
+{% if bear_long %}
+<td>bull</td>
+<td>sideways</td>
+<td style="background-color: red">bear</td>
+{% endif %}
+</tr>
+</table>
+</div>
+{% endblock %}
+<hr />
+</body>
+</html>

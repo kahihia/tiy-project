@@ -2,11 +2,12 @@ from django.contrib import admin
 from django.conf.urls import include, url
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login, logout
-from trade_engine.views import base, user_registration, account_settings, ticker_view, depth_view, CreateBalanceFormView, CreateActiveOrderFormView, CreateTradeFormView, CreateCancelOrderView, CreateTradeHistoryView, CreateUserAccountView, UpdateUserAccountView, DeleteUserAccountView
+from trade_engine.views import base, indicators, user_registration, account_settings, ticker_view, depth_view, CreateBalanceFormView, CreateActiveOrderFormView, CreateTradeFormView, CreateCancelOrderView, CreateTradeHistoryView, CreateUserAccountView, UpdateUserAccountView, DeleteUserAccountView
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', base, name='base'),
+    url(r'^indicators/', login_required(indicators), name='indicators'),
     url(r'^login/', login, name='login'),
     url(r'^logout/', logout, {'next_page': 'base'}, name='logout'),
     url(r'^registration/', user_registration, name='user_registration'),
