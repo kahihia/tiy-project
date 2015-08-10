@@ -3,7 +3,9 @@
 <head lang="en">
     <meta charset="UTF-8">
     <style>
-
+        .graphs {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -16,6 +18,7 @@
 <a href="{% url 'indicators' %}">indicators</a>
 {% endif %}
 </nav>
+<hr />
 <div>
 <table align="center">
 <tr>
@@ -64,7 +67,15 @@
 </tr>
 </table>
 </div>
+<div class="graphs">
+<img src='{{ graph_one }}'>
+<img src='{{ graph_two }}'>
+<img src='{{ graph_low }}'>
+<img src='{{ graph_avg }}'>
+<img src='{{ graph_vol }}'>
+<img src='{{ graph_three }}'>
+<img src='{{ graph_four }}'>
+</div>
 {% endblock %}
-<hr />
 </body>
 </html>

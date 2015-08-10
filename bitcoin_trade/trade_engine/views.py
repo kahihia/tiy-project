@@ -1,6 +1,10 @@
 from urllib.request import urlopen
 import json
+from matplotlib import pylab
+from pylab import *
 import numpy as np
+import pandas as pd
+from django_pandas.io import read_frame
 from django.db.models import Avg
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import render, render_to_response
@@ -11,6 +15,7 @@ from trade_engine.models import UserAccount, ActiveOrder, ActiveOrderTicker, Bal
 from django.contrib.auth.forms import UserCreationForm
 from django.template import RequestContext
 from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOrderForm, TradeHistoryForm
+from trade_engine.converter import *
 
 
 def base(request):
@@ -68,6 +73,42 @@ def indicators(request):
                "bull_long": bull_long,
                "null_long": null_long,
                "bear_long": bear_long}
+    qs = Ticker.objects.all()
+    df = read_frame(qs, coerce_float=True).convert_objects(convert_numeric=True, convert_dates=True)
+    x = Depth.objects.all()[Depth.objects.count()-1].split_bids
+    list1_bids = []
+    list2_bids = []
+    for item in x:
+        itemlist = item.split(',')
+        list1_bids.append(float(itemlist[0]))
+        list2_bids.append(float(itemlist[1]))
+    y = Depth.objects.all()[Depth.objects.count()-1].split_asks
+    list1_asks = []
+    list2_asks = []
+    for item in y:
+        itemlist = item.split(',')
+        list1_asks.append(float(itemlist[0]))
+        list2_asks.append(float(itemlist[1]))
+    df1 = {'x': list1_bids,
+           'y': list2_bids}
+    df2 = {'x': list1_asks,
+           'y': list2_asks}
+    bids_frame = pd.DataFrame(df1)
+    asks_frame = pd.DataFrame(df2)
+    graph_one = scatter_to_base64(df, "plot_current_price")
+    graph_two = scatter_to_base64(df, "plot_high")
+    graph_low = scatter_to_base64(df, "plot_low")
+    graph_avg = scatter_to_base64(df, "plot_avg")
+    graph_vol = scatter_to_base64(df, "plot_vol")
+    graph_three = scatter_to_base64(bids_frame, "plot_bids")
+    graph_four = scatter_to_base64(asks_frame, "plot_asks")
+    context["graph_one"] = graph_one
+    context["graph_two"] = graph_two
+    context["graph_low"] = graph_low
+    context["graph_avg"] = graph_avg
+    context["graph_vol"] = graph_vol
+    context["graph_three"] = graph_three
+    context["graph_four"] = graph_four
     return render_to_response("indicators.html", context, context_instance=RequestContext(request))
 
 
