@@ -1,5 +1,6 @@
 from urllib.request import urlopen
 import json
+from django.contrib.auth.models import User
 from matplotlib import pylab
 from pylab import *
 import numpy as np
@@ -11,12 +12,11 @@ from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from trade_engine.mixins import AddActiveOrderFormMixin
-from trade_engine.models import UserAccount, ActiveOrder, ActiveOrderTicker, Balance, BalanceTicker, Trade, TradeTicker, CancelOrder, CancelOrderTicker, TradeHistory, TradeHistoryTicker, Ticker, Depth
+from trade_engine.models import UserAccount, DepositAddress, ActiveOrder, ActiveOrderTicker, Balance, BalanceTicker, Trade, TradeTicker, CancelOrder, CancelOrderTicker, TradeHistory, TradeHistoryTicker, TransHistory, TransHistoryTicker, WithdrawCoin, WithdrawTicker, Ticker, Depth
 from django.contrib.auth.forms import UserCreationForm
 from django.template import RequestContext
-from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOrderForm, TradeHistoryForm
+from trade_engine.forms import BalanceForm, ActiveOrderForm, TradeForm, CancelOrderForm, TradeHistoryForm, TransHistoryForm, WithdrawForm
 from trade_engine.converter import *
-
 
 def base(request):
     context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
@@ -144,6 +144,14 @@ def account_settings(request):
     return render_to_response('account_settings.html', context, context_instance=RequestContext(request))
 
 
+def history(request):
+    context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
+               "active_order_ticker": ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1],
+               "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
+               "depth": Depth.objects.all()[Depth.objects.count()-1]}
+    return render_to_response('history.html', context, context_instance=RequestContext(request))
+
+
 def ticker_view(request):
     btce_prices = urlopen('https://btc-e.com/api/2/btc_usd/ticker')
     str_response = btce_prices.readall().decode('utf-8')
@@ -257,6 +265,48 @@ class CreateTradeHistoryView(CreateView):
         return ctx
 
 
+class CreateTransHistoryView(CreateView):
+
+    model = TransHistory
+    template_name = 'trans_history.html'
+    success_url = reverse_lazy('trans_history_view')
+    form_class = TransHistoryForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        super().form_valid(form)
+        return render(self.request, self.template_name, self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CreateTransHistoryView, self).get_context_data(**kwargs)
+        ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
+        ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
+        ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]
+        ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
+        return ctx
+
+
+class CreateWithdrawCoinView(CreateView):
+
+    model = WithdrawCoin
+    template_name = 'withdraw_coin.html'
+    success_url = reverse_lazy('account_settings')
+    form_class = WithdrawForm
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        super().form_valid(form)
+        return render(self.request, self.template_name, self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CreateWithdrawCoinView, self).get_context_data(**kwargs)
+        ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
+        ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
+        ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]
+        ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
+        return ctx
+
+
 class CreateUserAccountView(CreateView):
     model = UserAccount
     template_name = "create_user_account.html"
@@ -295,6 +345,51 @@ class UpdateUserAccountView(UpdateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(UpdateUserAccountView, self).get_context_data(**kwargs)
+        ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
+        ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
+        ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]
+        ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
+        return ctx
+
+
+class CreateUserAddressView(CreateView):
+    model = DepositAddress
+    template_name = "create_user_address.html"
+    success_url = reverse_lazy('account_settings')
+    fields = ["address"]
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        super().form_valid(form)
+        return render(self.request, self.template_name, self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CreateUserAddressView, self).get_context_data(**kwargs)
+        ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
+        ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
+        ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]
+        ctx['depth'] = Depth.objects.all()[Depth.objects.count()-1]
+        return ctx
+
+
+class DeleteUserAddressView(DeleteView):
+    model = DepositAddress
+    success_url = reverse_lazy('account_settings')
+
+
+class UpdateUserAddressView(UpdateView):
+    model = DepositAddress
+    template_name = "update_user_address.html"
+    fields = ["address"]
+    success_url = reverse_lazy('account_settings')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        super().form_valid(form)
+        return render(self.request, self.template_name, self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        ctx = super(UpdateUserAddressView, self).get_context_data(**kwargs)
         ctx['balance_ticker'] = BalanceTicker.objects.all()[BalanceTicker.objects.count()-1]
         ctx['active_order_ticker'] = ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1]
         ctx['ticker'] = Ticker.objects.all()[Ticker.objects.count()-1]

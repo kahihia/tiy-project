@@ -19,6 +19,61 @@ class UserAccount(models.Model):
     def __str__(self):
         return "{}, {}".format(self.api_key, self.secret)
 
+class DepositAddress(models.Model):
+    user = models.ForeignKey(User, related_name='UserAddress')
+    address = models.CharField(max_length=35)
+
+    def __str__(self):
+        return "{}".format(self.address)
+
+class WithdrawCoin(models.Model):
+    user = models.ForeignKey(User)
+    coin = models.CharField(max_length=3, default="BTC")
+    amount = models.DecimalField(max_digits=10, decimal_places=8)
+    address = models.CharField(max_length=35)
+
+@receiver(post_save, sender=WithdrawCoin)
+def withdraw_handler(sender, instance, **kwargs):
+    useraccount = instance.user.UserAccount
+    api_key = useraccount.api_key
+    secret = useraccount.secret.encode()
+    user = instance.user
+    nonce = str(time.time()).split('.')[0]
+    parms = {"method": "WithdrawCoin",
+             "coinName": instance.coin,
+             "amount": instance.amount,
+             "address": instance.address,
+             "nonce": nonce}
+    parms = urllib.parse.urlencode(parms)
+    hashed = hmac.new(secret, digestmod=hashlib.sha512)
+    parms = parms.encode()
+    hashed.update(parms)
+    signature = hashed.hexdigest()
+    headers = {"Content-type": "application/x-www-form-urlencoded",
+               "Key": api_key,
+               "Sign": signature}
+    conn = http.client.HTTPSConnection("btc-e.com")
+    conn.request("POST", "/tapi", parms, headers)
+    response = conn.getresponse().read()
+    response = response.decode('latin-1')
+    response = json.loads(response)
+    usd = response['return']['funds']['usd']
+    btc = response['return']['funds']['btc']
+    object = {'user': user, 'usd': usd, 'btc': btc}
+    BalanceTicker.objects.create(**object)
+    tid = response['return']['tId']
+    amount = response['return']['amountSent']
+    dict = {'tid': tid, 'amount': amount}
+    WithdrawTicker.objects.create(**dict)
+
+class WithdrawTicker(models.Model):
+    user = models.ForeignKey(User)
+    tid = models.IntegerField()
+    amount = models.DecimalField(max_digits=10, decimal_places=8)
+
+    def __str__(self):
+        return "{}, {}".format(self.tid, self.amount)
+
 
 class Balance(models.Model):
     user = models.ForeignKey(User)
@@ -30,7 +85,7 @@ def balance_handler(sender, instance, **kwargs):
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
     user = instance.user
-    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
+    nonce = str(time.time()).split('.')[0]
     parms = {"method": "getInfo",
              "nonce": nonce}
     parms = urllib.parse.urlencode(parms)
@@ -71,7 +126,7 @@ def active_order_handler(sender, instance, **kwargs):
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
     user = instance.user
-    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
+    nonce = str(time.time()).split('.')[0]
     parms = {"method": "ActiveOrders",
              "pair": "btc_usd",
              "nonce": nonce}
@@ -126,7 +181,7 @@ def trade_handler(sender, instance, **kwargs):
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
     user = instance.user
-    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
+    nonce = str(time.time()).split('.')[0]
     parms = {"method": "Trade",
              "pair": instance.pair,
              "type": instance.type,
@@ -169,7 +224,7 @@ def cancel_order_handler(sender, instance, **kwargs):
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
     user = instance.user
-    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
+    nonce = str(time.time()).split('.')[0]
     parms = {"method": "CancelOrder",
              "order_id": instance.order_id,
              "nonce": nonce}
@@ -212,7 +267,7 @@ def trade_history_handler(sender, instance, **kwargs):
     api_key = useraccount.api_key
     secret = useraccount.secret.encode()
     user = instance.user
-    nonce = str(((time.time() - 1398621111) * 10)).split('.')[0]
+    nonce = str(time.time()).split('.')[0]
     parms = {"method": "TradeHistory",
              "user": instance.user,
              "from": instance._From,
@@ -241,8 +296,47 @@ class TradeHistoryTicker(models.Model):
     user = models.ForeignKey(User)
     json = jsonfield.JSONField()
 
-    def __str__(self):
-        return self.json
+
+class TransHistory(models.Model):
+    user = models.ForeignKey(User)
+    _From = models.IntegerField(default=0)
+    count = models.IntegerField(default=1000)
+    order = models.CharField(max_length=4, default="DESC")
+
+
+@receiver(post_save, sender=TransHistory)
+def trans_history_handler(sender, instance, **kwargs):
+    useraccount = instance.user.UserAccount
+    api_key = useraccount.api_key
+    secret = useraccount.secret.encode()
+    user = instance.user
+    nonce = str(time.time()).split('.')[0]
+    parms = {"method": "TransHistory",
+             "user": instance.user,
+             "from": instance._From,
+             "count": instance.count,
+             "order": instance.order,
+             "nonce": nonce}
+    parms = urllib.parse.urlencode(parms)
+    hashed = hmac.new(secret, digestmod=hashlib.sha512)
+    parms = parms.encode()
+    hashed.update(parms)
+    signature = hashed.hexdigest()
+    headers = {"Content-type": "application/x-www-form-urlencoded",
+               "Key": api_key,
+               "Sign": signature}
+    conn = http.client.HTTPSConnection("btc-e.com")
+    conn.request("POST", "/tapi", parms, headers)
+    response = conn.getresponse().read()
+    response = response.decode('latin-1')
+    response = json.loads(response)
+    object = {'user': user, 'json': response}
+    TransHistoryTicker.objects.create(**object)
+
+
+class TransHistoryTicker(models.Model):
+    user = models.ForeignKey(User)
+    json = jsonfield.JSONField()
 
 
 class Ticker(models.Model):

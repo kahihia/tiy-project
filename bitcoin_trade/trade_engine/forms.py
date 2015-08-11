@@ -1,5 +1,5 @@
 from django import forms
-from trade_engine.models import Balance, ActiveOrder, Trade, CancelOrder, TradeHistory, Ticker
+from trade_engine.models import WithdrawCoin, Balance, ActiveOrder, Trade, CancelOrder, TradeHistory, TransHistory
 
 
 class BalanceForm(forms.ModelForm):
@@ -38,3 +38,15 @@ class TradeHistoryForm(forms.ModelForm):
         exclude = ["user"]
 
 
+class TransHistoryForm(forms.ModelForm):
+
+    class Meta:
+        model = TransHistory
+        exclude = ["user"]
+
+
+class WithdrawForm(forms.ModelForm):
+
+    class Meta:
+        model = WithdrawCoin
+        exclude = ["user"]

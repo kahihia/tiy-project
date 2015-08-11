@@ -1,22 +1,89 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="centertable">
     {% if not user.UserAccount %}
+    <table>
+    <td>
     <form method="GET" action="{% url 'create_user_account' %}">
         {% csrf_token %}
         {{ form }}
-        <button type="submit">create</button>
+        <button type="submit">Create User Account</button>
     </form>
+    </td>
+    </table>
     {% endif %}
-        {% if user.UserAccount %}
+    <table align="center">
+    {% if user.UserAccount %}
+    <tr>
+    <th colspan="2">
+        Api-Key: {{ user.UserAccount.api_key }}
+    </th>
+    </tr>
+    <tr>
+    <td>
         <form method="GET" action="{% url 'update_user_account' user.UserAccount.pk %}">
             {% csrf_token %}
-            <button type="submit">update useraccount</button>
+            <button type="submit">Update User Account</button>
         </form>
-            <br />
+    </td>
+    <td>
         <form method="POST" action="{% url 'delete_user_account' user.UserAccount.pk %}">
             {% csrf_token %}
-            <button type="submit">delete useraccount</button>
+            <button type="submit">Delete User Account</button>
         </form>
-        {% endif %}
+    </td>
+    {% endif %}
+    </tr>
+    </table>
+    </div>
+    <div>
+    <table align="center">
+    <tr>
+    <td>
+    <form method="GET" action="{% url 'create_user_address' %}">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Add Deposit Address</button>
+    </form>
+    </td>
+    </tr>
+    </table>
+    </div>
+    <div class="centertable">
+    <table align="center">
+    {% for useraddress in request.user.UserAddress.all %}
+    <th colspan="2">
+        BTC Deposit Address: {{ useraddress }}
+    </th>
+    <tr>
+    <td>
+        <form method="GET" action="{% url 'update_user_address' useraddress.pk %}">
+            {% csrf_token %}
+            <button type="submit">Update Deposit Address</button>
+        </form>
+    </td>
+    <td>
+        <form method="POST" action="{% url 'delete_user_address' useraddress.pk %}">
+            {% csrf_token %}
+            <button type="submit">Delete Deposit Address</button>
+        </form>
+    </td>
+    </tr>
+    {% endfor %}
+    </table>
+    </div>
+    <div class="centertable">
+    <table align="center">
+    <tr>
+    <td>
+    <form action="{% url 'withdraw_coin_view' %}" method="GET">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Withdraw Coins" />
+    </form>
+    </td>
+    </tr>
+    </table>
+    </div>
 {% endblock %}

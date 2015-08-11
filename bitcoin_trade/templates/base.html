@@ -13,7 +13,7 @@ form {
      text-align: center;
      margin: 5px;
 }
-.aParent div{
+.aParent div {
     clear: none;
     float: left;
 }
@@ -29,6 +29,9 @@ form {
 }
 .helptext {
     display: none;
+}
+.centertable {
+    margin: 20px;
 }
 </style>
 <body>
@@ -118,7 +121,7 @@ form {
     <a href="{% url 'account_settings' %}">account settings</a>
     <a href="{% url 'create_trade_form' %}">create trade</a>
     <a href="{% url 'create_cancel_order_view' %}">cancel trade</a>
-    <a href="{% url 'trade_history_view' %}">trade history</a>
+    <a href="{% url 'history' %}">user history</a>
     </div>
     </div>
 {% else %}
