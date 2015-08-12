@@ -8,13 +8,13 @@
     <td>
         <form method="GET" action="{% url 'trade_history_view' %}">
             {% csrf_token %}
-            <button type="submit">Trade History</button>
+            <button type="submit" class="btn btn-primary">Trade History</button>
         </form>
     </td>
     <td>
         <form method="GET" action="{% url 'trans_history_view' %}">
             {% csrf_token %}
-            <button type="submit">Transaction History</button>
+            <button type="submit" class="btn btn-primary">Transaction History</button>
         </form>
     </td>
     </tr>

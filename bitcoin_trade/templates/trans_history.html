@@ -4,6 +4,6 @@
     <form method="POST" action="{% url 'trans_history_view' %}">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Get Transaction History</button>
+        <button type="submit" class="btn btn-primary">Get Transaction History</button>
     </form>
 {% endblock %}

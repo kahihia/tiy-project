@@ -8,7 +8,7 @@
     <form method="GET" action="{% url 'create_user_account' %}">
         {% csrf_token %}
         {{ form }}
-        <button type="submit">Create User Account</button>
+        <button type="submit" class="btn btn-primary">Create User Account</button>
     </form>
     </td>
     </table>
@@ -24,13 +24,13 @@
     <td>
         <form method="GET" action="{% url 'update_user_account' user.UserAccount.pk %}">
             {% csrf_token %}
-            <button type="submit">Update User Account</button>
+            <button type="submit" class="btn btn-xs">Update User Account</button>
         </form>
     </td>
     <td>
         <form method="POST" action="{% url 'delete_user_account' user.UserAccount.pk %}">
             {% csrf_token %}
-            <button type="submit">Delete User Account</button>
+            <button type="submit" class="btn btn-xs">Delete User Account</button>
         </form>
     </td>
     {% endif %}
@@ -44,7 +44,7 @@
     <form method="GET" action="{% url 'create_user_address' %}">
         {% csrf_token %}
         {{ form }}
-        <button type="submit">Add Deposit Address</button>
+        <button type="submit" class="btn btn-primary">Add Deposit Address</button>
     </form>
     </td>
     </tr>
@@ -60,13 +60,13 @@
     <td>
         <form method="GET" action="{% url 'update_user_address' useraddress.pk %}">
             {% csrf_token %}
-            <button type="submit">Update Deposit Address</button>
+            <button type="submit" class="btn btn-xs">Update Deposit Address</button>
         </form>
     </td>
     <td>
         <form method="POST" action="{% url 'delete_user_address' useraddress.pk %}">
             {% csrf_token %}
-            <button type="submit">Delete Deposit Address</button>
+            <button type="submit" class="btn btn-xs">Delete Deposit Address</button>
         </form>
     </td>
     </tr>
@@ -80,7 +80,7 @@
     <form action="{% url 'withdraw_coin_view' %}" method="GET">
         {% csrf_token %}
         {{ form.as_p }}
-        <input type="submit" value="Withdraw Coins" />
+        <input type="submit" class="btn btn-primary" value="Withdraw Coins" />
     </form>
     </td>
     </tr>

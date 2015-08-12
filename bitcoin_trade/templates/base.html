@@ -1,17 +1,31 @@
 <!DOCTYPE html>
+{% load staticfiles %}
 <html>
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}"
+      rel="stylesheet" media="screen" />
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 </head>
 <style>
+body {
+    margin-bottom: 10%;
+}
 form {
     text-align: center;
 }
 .floatybox {
      display: inline-block;
      text-align: center;
+     padding: 5px;
+     border: solid;
+     border-width: thick;
+     border-color: #737373;
+     border-radius: 5px;
      margin: 5px;
+     margin-left: 4%;
+     margin-right: 4%;
 }
 .aParent div {
     clear: none;
@@ -33,25 +47,80 @@ form {
 .centertable {
     margin: 20px;
 }
+.center {
+    text-align: center;
+}
+.nav-pills {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+.active {
+    padding: 35px;
+    min-width: 220px;
+}
+@font-face {
+  font-family: 'bitcoin';
+  src: url('/static/bitcoinsymbol-pack-master/fonts/dejavu-fonts-ttf-2.34/ttf/DejaVuSerif-Bold.ttf');
+}
+.bitcoin-title {
+    font-family: bitcoin;
+    margin-top: 200px;
+    font-size: 90px;
+    text-align: center;
+}
+.header-image {
+    text-align: center;
+    margin: 15px;
+}
+.btn-default {
+    padding-top: 15px;
+}
+{% if not user.id %}
+body {
+    background-image: url("/static/bitcoinsymbol-pack-master/3D/white-heap-HD.png");
+}
+.sub {
+    text-align: center;
+}
+{% endif %}
 </style>
 <body>
-
-{% block body %}
-<nav>
-<a href="/account_settings/">{{ user.username }}</a>
-<a href="/">home</a>
+<div class="header-image">
+<a href="/"><img src="/static/Pennant.png" /></a>
+</div>
 {% if user.id %}
-<a href="{% url 'logout' %}">logout</a>
-<a href="{% url 'indicators' %}">indicators</a>
-{% endif %}
-</nav>
-<hr />
+<div class="btn-group btn-group-justified" role="group" aria-label="...">
+  <div class="btn-group" role="group">
+    <a href="/">
+    <button type="button" class="btn btn-default">
+        <p class="glyphicon glyphicon-home"><p>home</p></p>
+    </button>
+    </a>
+  </div>
+  <div class="btn-group" role="group">
+  <a href="{% url 'indicators' %}">
+    <button type="button" class="btn btn-default">
+        <p class="glyphicon glyphicon-signal"><p>indicators</p></p>
+    </button>
+  </a>
+  </div>
+  <div class="btn-group" role="group">
+  <a href="{% url 'logout' %}">
+    <button type="button" class="btn btn-default">
+        <p class="glyphicon glyphicon-log-out"><p>logout</p></p>
+    </button>
+  </a>
+  </div>
+  {% endif %}
+</div>
+{% block body %}
 {% if user.id %}
     <div class="getinfo">
     <div class="floatybox">
     <form action="{% url 'get_balance_form' %}" method="POST">
         {% csrf_token %}
-        <input type="submit" value="Get Balance" />
+        <input type="submit" class="btn btn-xs" value="Get Balance" />
     </form>
     <table>
         <tr><td>USD:</td> <td>{{ balance_ticker.usd }}<td></tr>
@@ -61,7 +130,7 @@ form {
     <div class="floatybox">
     <form action="{% url 'get_active_orders_form'  %}" method="POST">
         {% csrf_token %}
-        <input type="submit" value="Get Active Orders" />
+        <input type="submit" class="btn btn-xs" value="Get Active Orders" />
     </form>
         <table>
             {% for object in active_order_ticker.split_json %}
@@ -72,7 +141,7 @@ form {
     <div class="floatybox">
     <form action="{% url 'get_ticker'  %}" method="POST">
         {% csrf_token %}
-        <input type="submit" value="Get Ticker" />
+        <input type="submit" class="btn btn-xs" value="Get Ticker" />
     </form>
     <table>
         <tr><td>Current Price:</td> <td>{{ ticker.last }}</td></tr>
@@ -85,16 +154,16 @@ form {
     <div class="floatybox">
     <form action="{% url 'get_depth'  %}" method="POST">
         {% csrf_token %}
-        <input type="submit" value="Get Depth" />
+        <input class="btn btn-xs" type="submit" value="Get Depth" />
     </form>
     <div class="aParent">
     <div style="overflow:scroll; height:300px;">
     <table>
     <tr>
-    <th>Ask Orders</th>
+    <th class="center">Ask Orders</th>
     </tr>
     <tr>
-    <th>USD, BTC</th>
+    <th class="center">USD, BTC</th>
     </tr>
     {% for ask in depth.split_asks %}
         <tr><td>{{ ask }}</td></tr>
@@ -104,10 +173,10 @@ form {
     <div style="overflow:scroll; height:300px;">
     <table>
     <tr>
-    <th>Bid Orders</th>
+    <th class="center">Bid Orders</th>
     </tr>
     <tr>
-    <th>USD, BTC</th>
+    <th class="center">USD, BTC</th>
     </tr>
     {% for bid in depth.split_bids %}
         <tr><td>{{ bid }}</td></tr>
@@ -117,16 +186,44 @@ form {
     </div>
     </div>
     <div class="footer">
-    <hr />
-    <a href="{% url 'account_settings' %}">account settings</a>
-    <a href="{% url 'create_trade_form' %}">create trade</a>
-    <a href="{% url 'create_cancel_order_view' %}">cancel trade</a>
-    <a href="{% url 'history' %}">user history</a>
+    <div class="btn-group btn-group-justified" role="group" aria-label="...">
+        <div class="btn-group" role="group">
+            <a class=".btn" href="{% url 'account_settings' %}">
+            <button type="button" class="btn btn-default">
+            <p class="glyphicon glyphicon-cog"><p>account settings</p></p>
+            </button>
+            </a>
+        </div>
+        <div class="btn-group" role="group">
+            <a class=".btn" href="{% url 'create_trade_form' %}">
+            <button type="button" class="btn btn-default">
+            <p class="glyphicon glyphicon-ok"><p>create trade</p></p>
+            </button>
+            </a>
+        </div>
+        <div class="btn-group" role="group">
+            <a class=".btn" href="{% url 'create_cancel_order_view' %}">
+            <button type="button" class="btn btn-default">
+            <p class="glyphicon glyphicon-remove"><p>cancel trade</p></p>
+            </button>
+            </a>
+        </div>
+        <div class="btn-group" role="group">
+            <a class=".btn" href="{% url 'history' %}">
+            <button type="button" class="btn btn-default">
+                <p class="glyphicon glyphicon-user"><p>user history</p></p>
+            </button>
+            </a>
+        </div>
     </div>
     </div>
 {% else %}
-    <a href="/registration/">register</a>
-    <a href="{% url 'login' %}">login</a>
+    <h1 class="bitcoin-title">Bitcoin Trading Client</h1>
+    <h2 class="sub">Changing the way you trade Bitcoins</h2>
+    <ul class="nav nav-pills">
+        <li role="presentation" class="active"><a href="/registration/">register</a></li>
+        <li role="presentation" class="active"><a href="{% url 'login' %}">login</a></li>
+    </ul>
 {% endif %}
 {% endblock %}
 

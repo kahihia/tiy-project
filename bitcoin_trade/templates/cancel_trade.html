@@ -3,9 +3,9 @@
 {% block content %}
 
     <form action="{% url 'create_cancel_order_view' %}" method="POST">
-        {% csrf_token %}
+            {% csrf_token %}
             {{ form.as_p }}
-        <input type="submit" value="Save" />
+        <input type="submit" class="btn btn-danger" value="Save" />
     </form>
 
 {% endblock %}
