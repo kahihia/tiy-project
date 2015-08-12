@@ -1,11 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+    <div id="accountSettingsModal" class="modal fade">
+    <div class="modal-dialog">
+    <div class="modal-content">
+    <div class="centertable">
     <form action="{% url 'create_cancel_order_view' %}" method="POST">
             {% csrf_token %}
             {{ form.as_p }}
         <input type="submit" class="btn btn-danger" value="Save" />
     </form>
-
+    </div>
+    </div>
+    </div>
+    </div>
+    <script type="text/javascript">
+        (function(){
+           $('#accountSettingsModal').modal('show');
+        })();
+    </script>
 {% endblock %}

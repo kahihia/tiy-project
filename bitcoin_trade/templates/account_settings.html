@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div id="accountSettingsModal" class="modal fade">
+    <div class="modal-dialog">
+    <div class="modal-content">
     <div class="centertable">
     {% if not user.UserAccount %}
     <table>
@@ -86,4 +89,14 @@
     </tr>
     </table>
     </div>
+    </div>
+    </div>
+    </div>
+
+    <script type="text/javascript">
+        (function(){
+           $('#accountSettingsModal').modal('show');
+        })();
+    </script>
 {% endblock %}
+
