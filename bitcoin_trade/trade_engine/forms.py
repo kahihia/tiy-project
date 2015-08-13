@@ -1,5 +1,5 @@
 from django import forms
-from trade_engine.models import WithdrawCoin, Balance, ActiveOrder, Trade, CancelOrder, TradeHistory, TransHistory
+from trade_engine.models import WithdrawCoin, Balance, ActiveOrder, ActiveOrderTicker, Trade, CancelOrder, TradeHistory, TransHistory
 
 
 class BalanceForm(forms.ModelForm):
@@ -29,6 +29,10 @@ class CancelOrderForm(forms.ModelForm):
     class Meta:
         model = CancelOrder
         exclude = ["user"]
+
+    def __init__(self, *args, **kwargs):
+        super(CancelOrderForm, self).__init__(*args, **kwargs)
+        self.fields['order_id'] = forms.ChoiceField(choices=[(i, i) for i in ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1].split_json])
 
 
 class TradeHistoryForm(forms.ModelForm):

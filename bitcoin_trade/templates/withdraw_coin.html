@@ -6,6 +6,7 @@
     <div class="modal-content">
     <div class="centertable">
     <form action="{% url 'withdraw_coin_view' %}" method="POST">
+        <h2 class="form-signin-heading">Withdraw Coins</h2>
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit" class="btn btn-danger" value="Save" />

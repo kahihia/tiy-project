@@ -165,12 +165,12 @@ class ActiveOrderTicker(models.Model):
             z = list(y.values())
             return z
 
-
+types = [('buy', 'buy'), ('sell', 'sell')]
 
 class Trade(models.Model):
     user = models.ForeignKey(User)
     pair = models.CharField(max_length=8, default="btc_usd")
-    type = models.CharField(max_length=4)
+    type = models.CharField(max_length=4, choices=types)
     rate = models.DecimalField(max_digits=13, decimal_places=8)
     amount = models.DecimalField(max_digits=10, decimal_places=8)
 

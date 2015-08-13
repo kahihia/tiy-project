@@ -6,8 +6,9 @@
     <div class="modal-content">
     <div class="centertable">
     <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+        <h2 class="form-signin-heading">Update Address</h2>
+            {% csrf_token %}
+            {{ form.as_p }}
         <input type="submit" class="btn btn-primary" value="Update" />
     </form>
     </div>

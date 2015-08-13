@@ -6,6 +6,7 @@
     <div class="modal-content">
     <div class="centertable">
     <form method="POST" action="{% url 'trans_history_view' %}">
+        <h2 class="form-signin-heading">Transaction History</h2>
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Get Transaction History</button>

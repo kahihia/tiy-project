@@ -6,6 +6,7 @@
     <div class="modal-content">
     <div class="centertable">
     <form method="post">
+        <h2 class="form-signin-heading">Add Deposit Address</h2>
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="btn btn-primary" name="Register">create</button>
