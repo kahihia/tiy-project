@@ -6,25 +6,16 @@
     <div class="modal-content">
         <div class="centertable">
 <div class="centertable">
-    <table align="center">
-    <tr>
-        <th class="center" colspan="2">History</th>
-    </tr>
-    <tr>
-    <td>
+    <h2 class="form-signin-heading">Get History</h2>
         <form method="GET" action="{% url 'trade_history_view' %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">Trade History</button>
         </form>
-    </td>
-    <td>
+    <br />
         <form method="GET" action="{% url 'trans_history_view' %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">Transaction History</button>
         </form>
-    </td>
-    </tr>
-    </table>
 </div>
 </div>
     </div>

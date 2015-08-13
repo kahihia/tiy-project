@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 from django_pandas.io import read_frame
 from django.db.models import Avg
-from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import redirect
+from django.core.urlresolvers import reverse_lazy, reverse
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
@@ -158,12 +159,7 @@ def ticker_view(request):
     btcejson = json.loads(str_response)
     ticker_obj = btcejson['ticker']
     Ticker.objects.create(**ticker_obj)
-    context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
-               "active_order_ticker": ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1],
-               "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
-               "depth": Depth.objects.all()[Depth.objects.count()-1]}
-    return render_to_response('base.html', context, context_instance=RequestContext(request))
-
+    return redirect('base')
 
 def depth_view(request):
     btce_depth = urlopen('https://btc-e.com/api/3/depth/btc_usd')
@@ -172,11 +168,7 @@ def depth_view(request):
     depth_obj = btcejson['btc_usd']
     print(depth_obj)
     Depth.objects.create(**depth_obj)
-    context = {"balance_ticker": BalanceTicker.objects.all()[BalanceTicker.objects.count()-1],
-               "active_order_ticker": ActiveOrderTicker.objects.all()[ActiveOrderTicker.objects.count()-1],
-               "ticker": Ticker.objects.all()[Ticker.objects.count()-1],
-               "depth": Depth.objects.all()[Depth.objects.count()-1]}
-    return render_to_response('base.html', context, context_instance=RequestContext(request))
+    return redirect('base')
 
 
 class CreateBalanceFormView(CreateView):
@@ -207,13 +199,12 @@ class CreateTradeFormView(CreateView):
 
     model = Trade
     template_name = 'trade.html'
-    success_url = reverse_lazy('create_trade_form')
+    success_url = reverse_lazy('base')
     form_class = TradeForm
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        super().form_valid(form)
-        return render(self.request, self.template_name, self.get_context_data(form=form))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         ctx = super(CreateTradeFormView, self).get_context_data(**kwargs)
@@ -227,13 +218,12 @@ class CreateCancelOrderView(CreateView):
 
     model = CancelOrder
     template_name = 'cancel_trade.html'
-    success_url = reverse_lazy('create_cancel_order_view')
+    success_url = reverse_lazy('base')
     form_class = CancelOrderForm
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        super().form_valid(form)
-        return render(self.request, self.template_name, self.get_context_data(form=form))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         ctx = super(CreateCancelOrderView, self).get_context_data(**kwargs)
@@ -248,13 +238,12 @@ class CreateTradeHistoryView(CreateView):
 
     model = TradeHistory
     template_name = 'trade_history.html'
-    success_url = reverse_lazy('trade_history_view')
+    success_url = reverse_lazy('base')
     form_class = TradeHistoryForm
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        super().form_valid(form)
-        return render(self.request, self.template_name, self.get_context_data(form=form))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         ctx = super(CreateTradeHistoryView, self).get_context_data(**kwargs)
@@ -269,13 +258,12 @@ class CreateTransHistoryView(CreateView):
 
     model = TransHistory
     template_name = 'trans_history.html'
-    success_url = reverse_lazy('trans_history_view')
+    success_url = reverse_lazy('base')
     form_class = TransHistoryForm
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        super().form_valid(form)
-        return render(self.request, self.template_name, self.get_context_data(form=form))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         ctx = super(CreateTransHistoryView, self).get_context_data(**kwargs)
@@ -290,13 +278,12 @@ class CreateWithdrawCoinView(CreateView):
 
     model = WithdrawCoin
     template_name = 'withdraw_coin.html'
-    success_url = reverse_lazy('account_settings')
+    success_url = reverse_lazy('base')
     form_class = WithdrawForm
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        super().form_valid(form)
-        return render(self.request, self.template_name, self.get_context_data(form=form))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         ctx = super(CreateWithdrawCoinView, self).get_context_data(**kwargs)
@@ -310,13 +297,12 @@ class CreateWithdrawCoinView(CreateView):
 class CreateUserAccountView(CreateView):
     model = UserAccount
     template_name = "create_user_account.html"
-    success_url = reverse_lazy('account_settings')
+    success_url = reverse_lazy('base')
     fields = ["api_key", "secret"]
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        super().form_valid(form)
-        return render(self.request, self.template_name, self.get_context_data(form=form))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         ctx = super(CreateUserAccountView, self).get_context_data(**kwargs)
@@ -329,19 +315,18 @@ class CreateUserAccountView(CreateView):
 
 class DeleteUserAccountView(DeleteView):
     model = UserAccount
-    success_url = reverse_lazy('account_settings')
+    success_url = reverse_lazy('base')
 
 
 class UpdateUserAccountView(UpdateView):
     model = UserAccount
     template_name = "update_user_account.html"
     fields = ["api_key", "secret"]
-    success_url = reverse_lazy('account_settings')
+    success_url = reverse_lazy('base')
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        super().form_valid(form)
-        return render(self.request, self.template_name, self.get_context_data(form=form))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         ctx = super(UpdateUserAccountView, self).get_context_data(**kwargs)
@@ -355,13 +340,12 @@ class UpdateUserAccountView(UpdateView):
 class CreateUserAddressView(CreateView):
     model = DepositAddress
     template_name = "create_user_address.html"
-    success_url = reverse_lazy('account_settings')
     fields = ["address"]
+    success_url = reverse_lazy('base')
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        super().form_valid(form)
-        return render(self.request, self.template_name, self.get_context_data(form=form))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         ctx = super(CreateUserAddressView, self).get_context_data(**kwargs)
@@ -374,19 +358,18 @@ class CreateUserAddressView(CreateView):
 
 class DeleteUserAddressView(DeleteView):
     model = DepositAddress
-    success_url = reverse_lazy('account_settings')
+    success_url = reverse_lazy('base')
 
 
 class UpdateUserAddressView(UpdateView):
     model = DepositAddress
     template_name = "update_user_address.html"
     fields = ["address"]
-    success_url = reverse_lazy('account_settings')
+    success_url = reverse_lazy('base')
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        super().form_valid(form)
-        return render(self.request, self.template_name, self.get_context_data(form=form))
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         ctx = super(UpdateUserAddressView, self).get_context_data(**kwargs)
